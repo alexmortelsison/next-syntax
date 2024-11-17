@@ -1,5 +1,7 @@
-import BlogCard from "@/components/BlogCard";
+import BlogCard, { BlogCardTypeCard } from "@/components/BlogCard";
 import SearchForm from "@/components/SearchForm";
+import { sanityFetch, SanityLive } from "@/sanity/lib/live";
+import { BLOG_QUERY } from "@/sanity/lib/queries";
 import React from "react";
 
 const HomePage = async ({
@@ -8,19 +10,9 @@ const HomePage = async ({
   searchParams: Promise<{ query?: string }>;
 }) => {
   const query = (await searchParams).query;
-  const posts = [
-    {
-      _createdAt: new Date(),
-      views: 55,
-      author: { _id: 1, name: "Alex" },
-      _id: 1,
-      description: "This is a description",
-      image:
-        "https://images.pexels.com/photos/247819/pexels-photo-247819.jpeg?auto=compress&cs=tinysrgb&w=600",
-      category: "Machine Learning",
-      title: "Unlocking the Power of Machine Learning",
-    },
-  ];
+  const { data: posts } = await sanityFetch({ query: BLOG_QUERY });
+  console.log(posts); // Check how many posts are being returned
+
   return (
     <div>
       <SearchForm query={query} />
@@ -30,13 +22,15 @@ const HomePage = async ({
 
       <ul className="mt-7 grid md:grid-cols-3 gap-3">
         {posts?.length > 0 ? (
-          posts.map((post: BlogCardTypeCard, index) => (
+          posts.map((post: BlogCardTypeCard) => (
             <BlogCard key={post?._id} post={post} />
           ))
         ) : (
           <p>No Blogs found</p>
         )}
       </ul>
+
+      <SanityLive />
     </div>
   );
 };
